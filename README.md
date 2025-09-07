@@ -67,7 +67,7 @@ reaper --target example.com -sV --vuln
 
 ---
 
-## 👥 チームメンバー (Team)
+## Team
 
 - [MemberA] - [役割:]
 - [MemberB] - [役割:]
