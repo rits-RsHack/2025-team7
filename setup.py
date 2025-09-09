@@ -1,6 +1,12 @@
 # setup.py
 
-from setuptools import setup, find_packages
+from setuptools import setup, Extension, find_packages
+import sys
+
+c_scanner = Extension(
+    'c_scanner',
+    sources=['src/c_scanner.c']
+)
 
 setup(
     name='reaper',
