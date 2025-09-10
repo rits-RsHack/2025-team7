@@ -2,6 +2,7 @@
 
 import argparse # argparseライブラリをインポート
 from src.scanner.port_scanner import check_port
+from src.utils.network_utils import get_service_name
 
 def main():
     """
@@ -38,7 +39,8 @@ def main():
 
         # 結果を表示
         if is_open:
-            print(f"結果: ポート {port_num} は [オープン] です。✅")
+            service = get_service_name(port_num)
+            print(f"結果: ポート {port_num} ({service}) は [オープン] です。✅")
         else:
             print(f"結果: ポート {port_num} は [クローズ] です。❌")
 
