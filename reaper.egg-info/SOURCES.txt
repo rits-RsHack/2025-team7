@@ -4,9 +4,11 @@ reaper.egg-info/PKG-INFO
 reaper.egg-info/SOURCES.txt
 reaper.egg-info/dependency_links.txt
 reaper.egg-info/entry_points.txt
+reaper.egg-info/requires.txt
 reaper.egg-info/top_level.txt
 src/__init__.py
 src/main.py
+src/scanner/c_scanner/scanner.c
 src/scanner/__init__.py
 src/scanner/port_scanner.py
 src/scanner/utlis/__init__.py

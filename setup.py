@@ -5,13 +5,20 @@ import sys
 
 c_scanner = Extension(
     'c_scanner',
-    sources=['src/c_scanner.c']
+    sources=['src/scanner/c_scanner/scanner.c']
 )
 
-setup(
+setup(    
     name='reaper',
-    version='0.1.0',
+    version='0.2.0',
     packages=find_packages(),
+
+    install_requires=[
+        'tqdm',
+    ],
+
+    ext_modules=[c_scanner],
+
     entry_points={
         'console_scripts': [
             'reaper = src.main:main',
