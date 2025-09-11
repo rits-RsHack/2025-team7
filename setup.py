@@ -3,9 +3,15 @@
 from setuptools import setup, Extension, find_packages
 import sys
 
-c_scanner = Extension(
+# OSによって必要なライブラリを切り替える
+libraries = []
+if sys.platform == 'win32':
+    libraries.append('Ws2_32')
+
+c_scanner_module = Extension(
     'c_scanner',
-    sources=['src/scanner/c_scanner/scanner.c']
+    sources=['src/scanner/c_scanner/scanner.c'],
+    libraries=libraries  # 👈 ここにライブラリリストを渡す
 )
 
 setup(    
@@ -17,7 +23,7 @@ setup(
         'tqdm',
     ],
 
-    ext_modules=[c_scanner],
+    ext_modules=[c_scanner_module],
 
     entry_points={
         'console_scripts': [
