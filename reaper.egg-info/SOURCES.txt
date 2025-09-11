@@ -11,6 +11,7 @@ src/main.py
 src/scanner/c_scanner/scanner.c
 src/scanner/__init__.py
 src/scanner/port_scanner.py
+src/scanner/c_scanner/scanner.c
 src/scanner/utlis/__init__.py
 src/scanner/utlis/future/__init__.py
 src/scanner/utlis/future/bruteforce.py
