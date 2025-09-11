@@ -7,12 +7,9 @@ from tqdm import tqdm
 
 # C言語でコンパイルした高速なスキャン関数をインポート
 # もしインポートに失敗した場合、Python版を予備として使う
-# try:
-from scanner.c_scanner import scan_port
+
+from c_scanner import scan_port
 SCAN_MODE = "C"
-# except ImportError:
-#     from src.scanner.port_scanner import check_port as scan_port
-#     SCAN_MODE = "Python"
 
 def parse_ports(port_range_str):
     """ポート範囲の文字列 (例: '1-1024', '80,443', '22') を解析してポートのリストを返す"""

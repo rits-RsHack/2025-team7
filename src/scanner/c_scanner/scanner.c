@@ -69,7 +69,7 @@ static PyObject* scan_port(PyObject* self, PyObject* args) {
 
 // (これ以降のPyMethodDefやPyModuleDefなどは変更なし)
 static PyMethodDef CScannerMethods[] = {
-    {"scan_port", scan_port_c, METH_VARARGS, "Scan a single port."},
+    {"scan_port", scan_port, METH_VARARGS, "Scan a single port."},
     {NULL, NULL, 0, NULL}
 };
 static struct PyModuleDef cscannermodule = {
