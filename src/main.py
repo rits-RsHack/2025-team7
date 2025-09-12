@@ -91,10 +91,12 @@ def main():
                 if future.result():
                     # --- 変更点 3: サービス名を取得し、辞書に保存 ---
                     service = get_service_name(port)
+
+                    if service != "unknown":
                     
-                    banner = get_banner(host_ip, port) # get_bannerを呼び出す
+                        banner = get_banner(host_ip, port) # get_bannerを呼び出す
                     
-                    open_ports[port] = service # 結果を保存
+                        open_ports[port] = service # 結果を保存
                     
                     # 進捗バーの表示を更新
                     if banner:
