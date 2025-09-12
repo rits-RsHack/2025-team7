@@ -1,4 +1,4 @@
-# src/main.py (更新後)
+# src/main.py (サービス名表示機能を追加)
 
 import argparse
 import importlib.metadata
@@ -8,13 +8,21 @@ import socket
 
 # C言語でコンパイルした高速なスキャン関数をインポート
 # もしインポートに失敗した場合、Python版を予備として使う
+#try:
+#    from c_scanner import scan_port
+#    SCAN_MODE = "C"
+#except ImportError:
+from src.scanner.port_scanner import check_port as scan_port
+SCAN_MODE = "Python"
 
-try:
-    from c_scanner import scan_port
-    SCAN_MODE = "C"
-except ImportError:
-    from src.scanner.port_scanner import check_port as scan_port
-    SCAN_MODE = "Python"
+# --- 変更点 1: サービス名を取得する関数を追加 ---
+def get_service_name(port):
+    """ポート番号からサービス名を返す。見つからなければ'unknown'を返す。"""
+    try:
+        return socket.getservbyport(port, 'tcp')
+    except (OSError, TypeError): # ポート番号がNoneの場合も考慮
+        return "unknown"
+# --------------------------------------------
 
 def parse_ports(port_range_str):
     """ポート範囲の文字列 (例: '1-1024', '80,443', '22') を解析してポートのリストを返す"""
@@ -44,7 +52,7 @@ def main():
     parser.add_argument(
         "-v", "--version",
         action="version",
-        version=f"%(prog)s {__version__}" # 表示する文字列 (例: "reaper 0.2.0")
+        version=f"%(prog)s {__version__}"
     )
     
     args = parser.parse_args()
@@ -68,30 +76,34 @@ def main():
     print(f"🚀 Starting Reaper scanner on {host_ip} (Engine: {SCAN_MODE})")
     print(f"Scanning {len(target_ports)} ports with {num_workers} workers...\n")
 
-    open_ports = []
+    # --- 変更点 2: 結果を {ポート番号: サービス名} の辞書で保存 ---
+    open_ports = {}
+    # ---------------------------------------------------------
 
-    # ThreadPoolExecutorを使って並列処理を実行
     with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        # {future: port} の辞書を作成
         future_to_port = {executor.submit(scan_port, host_ip, port): port for port in target_ports}
         
-        # tqdmで進捗バーを表示しながら結果を待つ
         progress_bar = tqdm(as_completed(future_to_port), total=len(target_ports), desc="Scanning Ports")
         for future in progress_bar:
             port = future_to_port[future]
             try:
-                # C関数がTrueを返した場合 (ポートがオープン)
                 if future.result():
-                    open_ports.append(port)
-                    # 進捗バーの横に見つかったオープンポートを表示
-                    progress_bar.set_postfix_str(f"Found: {port}")
+                    # --- 変更点 3: サービス名を取得し、辞書に保存 ---
+                    service = get_service_name(port)
+                    open_ports[port] = service
+                    # 進捗バーの横に見つかったポートとサービス名を表示
+                    progress_bar.set_postfix_str(f"Found: {port} ({service})")
+                    # ------------------------------------------------
             except Exception as exc:
                 print(f"Port {port} generated an exception: {exc}")
 
     print("\n✨ Scan Complete!")
     if open_ports:
         print("✅ Open Ports Found:")
-        print(", ".join(map(str, sorted(open_ports))))
+        # --- 変更点 4: 辞書の内容を綺麗に表示 ---
+        for port, service in sorted(open_ports.items()):
+            print(f"  - Port {port:<5} ({service})")
+        # ---------------------------------------
     else:
         print("❌ No open ports found in the specified range.")
 
