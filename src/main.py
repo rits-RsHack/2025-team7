@@ -8,12 +8,12 @@ import socket
 
 # C言語でコンパイルした高速なスキャン関数をインポート
 # もしインポートに失敗した場合、Python版を予備として使う
-#try:
-#    from c_scanner import scan_port
-#    SCAN_MODE = "C"
-#except ImportError:
-from src.scanner.port_scanner import check_port as scan_port
-SCAN_MODE = "Python"
+try:
+    from c_scanner import scan_port
+    SCAN_MODE = "C"
+except ImportError:
+    from src.scanner.port_scanner import check_port as scan_port
+    SCAN_MODE = "Python"
 
 # --- 変更点 1: サービス名を取得する関数を追加 ---
 def get_service_name(port):
@@ -90,10 +90,11 @@ def main():
                 if future.result():
                     # --- 変更点 3: サービス名を取得し、辞書に保存 ---
                     service = get_service_name(port)
-                    open_ports[port] = service
-                    # 進捗バーの横に見つかったポートとサービス名を表示
-                    progress_bar.set_postfix_str(f"Found: {port} ({service})")
-                    # ------------------------------------------------
+                    if service != "unknown":
+                        open_ports[port] = service
+                        # 進捗バーの横に見つかったポートとサービス名を表示
+                        progress_bar.set_postfix_str(f"Found: {port} ({service})")
+                        # ------------------------------------------------
             except Exception as exc:
                 print(f"Port {port} generated an exception: {exc}")
 
