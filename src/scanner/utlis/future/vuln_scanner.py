@@ -23,7 +23,6 @@ def check_vulnerability(service_banner: str) -> str:
                     return vulnerability # 脆弱性が見つかった！
 
     return "" # 何も見つからなかった
-# src/scanner/vuln_scanner.py の一番下に追記
 
 if __name__ == "__main__":
     # --- テスト用のコード ---
