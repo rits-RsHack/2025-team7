@@ -4,12 +4,17 @@ import argparse
 import importlib.metadata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
+import socket
 
 # C言語でコンパイルした高速なスキャン関数をインポート
 # もしインポートに失敗した場合、Python版を予備として使う
 
-from c_scanner import scan_port
-SCAN_MODE = "C"
+try:
+    from c_scanner import scan_port
+    SCAN_MODE = "C"
+except ImportError:
+    from src.scanner.port_scanner import check_port as scan_port
+    SCAN_MODE = "Python"
 
 def parse_ports(port_range_str):
     """ポート範囲の文字列 (例: '1-1024', '80,443', '22') を解析してポートのリストを返す"""
@@ -46,6 +51,14 @@ def main():
 
     host_ip = args.host
     num_workers = args.workers
+
+    try:
+        resolved_ip = socket.gethostbyname(host_ip)
+        print(f"Resolving '{host_ip}' to {resolved_ip}")
+    except socket.gaierror:
+        print(f"Error: Could not resolve hostname '{host_ip}'")
+        return
+    
     try:
         target_ports = parse_ports(args.ports)
     except ValueError:
