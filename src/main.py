@@ -82,7 +82,7 @@ def main():
     # ---------------------------------------------------------
 
     with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        future_to_port = {executor.submit(scan_port, host_ip, port): port for port in target_ports}
+        future_to_port = {executor.submit(scan_port, resolved_ip, port): port for port in target_ports}
         
         progress_bar = tqdm(as_completed(future_to_port), total=len(target_ports), desc="Scanning Ports")
         for future in progress_bar:
