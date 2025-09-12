@@ -5,6 +5,7 @@ import importlib.metadata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 import socket
+from src.scanner.port_scanner import check_port as scan_port, get_banner
 
 # C言語でコンパイルした高速なスキャン関数をインポート
 # もしインポートに失敗した場合、Python版を予備として使う
@@ -90,9 +91,15 @@ def main():
                 if future.result():
                     # --- 変更点 3: サービス名を取得し、辞書に保存 ---
                     service = get_service_name(port)
-                    if service != "unknown":
-                        open_ports[port] = service
-                        # 進捗バーの横に見つかったポートとサービス名を表示
+                    
+                    banner = get_banner(host_ip, port) # get_bannerを呼び出す
+                    
+                    open_ports[port] = service # 結果を保存
+                    
+                    # 進捗バーの表示を更新
+                    if banner:
+                        progress_bar.set_postfix_str(f"Found: {port} ({service}) - {banner[:20]}...")
+                    else:
                         progress_bar.set_postfix_str(f"Found: {port} ({service})")
                         # ------------------------------------------------
             except Exception as exc:
