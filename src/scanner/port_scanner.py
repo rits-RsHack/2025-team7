@@ -47,3 +47,17 @@ def check_port(host: str, port: int) -> bool:
     finally:
         # 接続試行が終わったら、必ずソケットを閉じます。
         s.close()
+
+def get_banner(host: str, port: int) -> str:
+    """
+    指定されたホストとポートに接続し、サービスのバナー情報を取得します。
+    """
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(2)
+        s.connect((host, port))
+        banner = s.recv(1024)
+        s.close()
+        return banner.decode('utf-8', 'ignore').strip()
+    except Exception:
+        return ""
