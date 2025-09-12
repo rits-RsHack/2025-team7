@@ -88,6 +88,7 @@ def main():
         for future in progress_bar:
             port = future_to_port[future]
             try:
+                banner = ""
                 if future.result():
                     # --- 変更点 3: サービス名を取得し、辞書に保存 ---
                     service = get_service_name(port)
