@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 import socket
 from src.scanner.port_scanner import check_port as scan_port, get_banner
+from src.scanner.utlis.future.vuln_scanner import check_vulnerability
 
 try:
     from c_scanner import scan_port
@@ -38,7 +39,10 @@ def main():
                         help="Ports to scan. (e.g., '1-1024', '80,443', '22,80-90')")
     parser.add_argument("-w", "--workers", type=int, default=100,
                         help="Number of parallel scanning threads (workers).")
-
+    parser.add_argument("--vuln", 
+        action="store_true", 
+        help="Perform vulnerability scan on open ports."
+    )
     try:
         __version__ = importlib.metadata.version("reaper")
     except importlib.metadata.PackageNotFoundError:
@@ -71,7 +75,7 @@ def main():
     print(f"🚀 Starting Reaper scanner on {host_ip} (Engine: {SCAN_MODE})")
     print(f"Scanning {len(target_ports)} ports with {num_workers} workers...\n")
 
-    open_ports = {}
+    open_ports_details = {}
 
     with ThreadPoolExecutor(max_workers=num_workers) as executor:
         # --- 変更（Submit進捗） ---
@@ -95,7 +99,19 @@ def main():
                         banner = get_banner(host_ip, port)  # get_bannerを呼び出す
                     except Exception:
                         banner = ""
-                    open_ports[port] = service
+                    if args.vuln:
+                        # 脆弱性スキャン関数を呼び出す
+                        vulnerability = check_vulnerability(banner)
+                        if vulnerability:
+                            # 脆弱性が見つかったら、進捗バーを壊さずに表示
+                            tqdm.write(f"  [!] Port {port} ({service}): {vulnerability}")
+                    vulnerability = check_vulnerability(banner) if args.vuln else ""
+                    
+                    open_ports_details[port] = {
+                        "service": service,
+                        "banner": banner,
+                        "vuln": vulnerability
+                    }
                     if banner:
                         progress_bar.set_postfix_str(f"Found: {port} ({service}) - {banner[:20]}...")
                     else:
@@ -107,10 +123,15 @@ def main():
 #   tqdm(total=len(target_ports), initial=len(target_ports), desc=" Scanning Ports ", unit="port", colour='blue', bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]").close()
 
     print("\n✨ Scan Complete!")
-    if open_ports:
+    if open_ports_details:
         print("✅ Open Ports Found:")
-        for port, service in sorted(open_ports.items()):
-            print(f"  - Port {port:<5} ({service})")
+        for port, details in sorted(open_ports_details.items()):
+            print(f"  ----------------------------------------")
+            print(f"  - Port {port:<5} ({details['service']})")
+            if details['banner']:
+                print(f"    Banner: {details['banner']}")
+            if details['vuln']:
+                print(f"    VULN!!: {details['vuln']}")
     else:
         print("❌ No open ports found in the specified range.")
 

@@ -8,12 +8,10 @@ reaper.egg-info/requires.txt
 reaper.egg-info/top_level.txt
 src/__init__.py
 src/main.py
-src/scanner/c_scanner/scanner.c
 src/scanner/__init__.py
 src/scanner/port_scanner.py
 src/scanner/c_scanner/scanner.c
 src/scanner/utlis/__init__.py
 src/scanner/utlis/future/__init__.py
-src/scanner/utlis/future/bruteforce.py
-src/scanner/utlis/future/service_detector.py
+src/scanner/utlis/future/get_banner.py
 src/scanner/utlis/future/vuln_scanner.py
